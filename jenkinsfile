@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        env = "non-prod"
+        env = 'non-prod'
         registryCredential = "registryCredential"
         version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
     }
@@ -40,36 +40,37 @@ pipeline {
             }
         }
 
-    stage('Build DockerFile And Push') {
-        when { expression { return env.env == 'non-prod'} }
-        steps {
-            script {
-                docker.withRegistry("", "${env.nexusCredentail}") {
-                    a = docker.build("narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}", "-f Dockerfile .")
-                }
-                docker.withRegistry("", "${env.nexusCredentail}") {
-                    a.push()
+        stage('Build DockerFile And Push') {
+            when { expression { return env.env == 'non-prod'} }
+            steps {
+                script {
+                    docker.withRegistry("", "${env.nexusCredentail}") {
+                        a = docker.build("narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}", "-f Dockerfile .")
+                    }
+                    docker.withRegistry("", "${env.nexusCredentail}") {
+                        a.push()
+                    }
                 }
             }
         }
-    }
 
-    stage('Cleanup') {
-        when { expression { return env.env == 'non-prod'} }
-        steps {
-            script {
-                sh "docker rmi narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}" 
-            }      
-        }
-    }
-
-    stage('Apply Environment variable to deployment file') {
-        steps {
-            script {
-                // load "config/pod-sizing-${env.env}.groovy"
+        stage('Cleanup') {
+            when { expression { return env.env == 'non-prod'} }
+            steps {
+                script {
+                    sh "docker rmi narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}" 
+                }      
             }
         }
-    }
+
+        stage('Apply Environment variable to deployment file') {
+            steps {
+                script {
+                    // load "config/pod-sizing-${env.env}.groovy"
+                    echo "hellow"
+                }
+            }
+        }
     
     }
 }
