@@ -63,10 +63,19 @@ pipeline {
             }
         }
 
-        stage('Apply Environment variable to deployment file') {
+        stage('Apply Environment variable') {
             steps {
                 script {
-                    // load "config/pod-sizing-${env.env}.groovy"
+                    if (env.env == 'non-prod') {
+                        stage ('Stage 1') {
+                            sh 'echo Stage 1'
+                        }
+                    }
+                    if (env.env == 'prod') {
+                        stage ('Stage 2') {
+                            sh 'echo Stage 2'
+                        }
+                    }
                     echo "hellow"
                 }
             }
