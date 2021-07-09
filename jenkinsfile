@@ -60,14 +60,14 @@ pipeline {
             steps {
                 script {
                     if (env.env == 'non-prod') {
-                        stage ('Stage 1') {
+                        stage ('non-prod') {
                             sh '''
                                 docker run -d -p 8081:8080 --name non-prod-server --env USERHELLO=${variable_non_prod} narawitrt/demo-service:${version_tag}
                                 '''
                         }
                     }
                     if (env.env == 'prod') {
-                        stage ('Stage 2') {
+                        stage ('prod') {
                             sh '''
                             docker run -d -p 8082:8080 --name prod-server --env USERHELLO=${variable_prod} narawitrt/demo-service:${version_tag}
                             '''
@@ -80,7 +80,8 @@ pipeline {
         stage('Cleanup') {
             steps {
                 script {
-                    sh "docker rmi narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}" 
+                    // sh "docker rmi narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}" 
+                    echo "cleanup"
                 }      
             }
         }
