@@ -1,0 +1,85 @@
+pipeline {
+    environment {
+        env = "non-prod"
+        registry_proxy = "vayudockerhubdev.ktbcs.co.th:8082"  //for download image from internet
+        registry = "vayudockerhubdev.ktbcs.co.th:8083" //for private registry
+        serviceName = "demo-service" // Replace your serviceName
+        imageName = "$serviceName"  // <prefix>/serviceName // prefix = project name
+        buildversion = "$majorbuild.$minorbuild.${BUILD_NUMBER}"
+        registryCredential = "registryCredential"
+        version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+        imageToDeploy = getImageToDeploy("$params.imageToDeploy","$imageName","$version_tag")
+    }
+    agent any
+    stages {
+        stage('Pull image') {
+            when { expression { return env.env == 'non-prod'} }
+            steps {
+                script {
+                    a = docker.image("maven:3-alpine")
+                    b = docker.image("adoptopenjdk/openjdk8-openj9")
+                    docker.withRegistry('', "${env.registryCredential}") {
+                        a.pull()
+                        b.pull()
+                    }
+                }
+            }
+        }
+
+        stage('Build App With Maven') {
+            when { expression { return env.env == 'dev'} }
+            agent {
+                 docker {
+                    image "maven:3-alpine"
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+                    echo "Build Number : ${BUILD_NUMBER}"
+                    
+                    pwd
+                    mvn package -DskipTests
+                    chown -hR 989 target
+                    chgrp -hR 983 target
+                    pwd
+                    ls -al
+                ''' 
+            }
+        }
+
+    stage('Build DockerFile And Push') {
+        when { expression { return env.env == 'dev'} }
+        steps {
+            script {
+                docker.withRegistry("https://" + "${env.registry_proxy}", "${env.nexusCredentail}") {
+                    a = docker.build("${env.registry}" + "/" + "${env.imageName}" + ":"+"${env.version_tag}", "-f docker/Dockerfile .")
+                }
+                docker.withRegistry("https://" + "${env.registry}", "${env.nexusCredentail}") {
+                    a.push()
+                }
+            }
+        }
+    }
+
+    stage('Cleanup') {
+        when { expression { return env.env == 'dev'} }
+        steps {
+            script {
+                sh "docker rmi ${env.registry}" + "/" + "${env.imageName}" + ":"+"${env.version_tag}" 
+            }      
+        }
+    }
+
+    stage('Apply Environment variable to deployment file') {
+        steps {
+            script {
+                load "config/pod-sizing-${env.env}.groovy"
+            }
+        }
+    }
+    
+    }
+}
