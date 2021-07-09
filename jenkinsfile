@@ -44,10 +44,10 @@ pipeline {
             when { expression { return env.env == 'non-prod'} }
             steps {
                 script {
-                    docker.withRegistry("", "${env.nexusCredentail}") {
+                    docker.withRegistry("", "${env.registryCredential}") {
                         a = docker.build("narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}", "-f Dockerfile .")
                     }
-                    docker.withRegistry("", "${env.nexusCredentail}") {
+                    docker.withRegistry("", "${env.registryCredential}") {
                         a.push()
                     }
                 }
