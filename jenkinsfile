@@ -4,7 +4,7 @@ pipeline {
         registryCredential = "registryCredential"
         version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
         variable_prod="my name is production chan!!"
-        variable_non_prod="I'm non-production kun"
+        variable_non_prod="I am non-production kun"
     }
     agent any
     stages {
