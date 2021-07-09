@@ -21,10 +21,11 @@ pipeline {
         }
 
         stage('Build App With Maven') {
-            when { expression { return env.env == 'dev'} }
+            when { expression { return env.env == 'non-prod'} }
             agent {
                  docker {
                     image "maven:3-alpine"
+                    args '-u root'
                     reuseNode true
                 }
             }
@@ -40,7 +41,7 @@ pipeline {
         }
 
     stage('Build DockerFile And Push') {
-        when { expression { return env.env == 'dev'} }
+        when { expression { return env.env == 'non-prod'} }
         steps {
             script {
                 docker.withRegistry("", "${env.nexusCredentail}") {
@@ -54,10 +55,10 @@ pipeline {
     }
 
     stage('Cleanup') {
-        when { expression { return env.env == 'dev'} }
+        when { expression { return env.env == 'non-prod'} }
         steps {
             script {
-                sh "docker rmi ${env.registry}" + "/" + "${env.imageName}" + ":"+"${env.version_tag}" 
+                sh "docker rmi narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}" 
             }      
         }
     }
@@ -65,7 +66,7 @@ pipeline {
     stage('Apply Environment variable to deployment file') {
         steps {
             script {
-                load "config/pod-sizing-${env.env}.groovy"
+                // load "config/pod-sizing-${env.env}.groovy"
             }
         }
     }
