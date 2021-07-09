@@ -9,7 +9,6 @@ pipeline {
     agent any
     stages {
         stage('Pull image') {
-            when { expression { return env.env == 'non-prod'} }
             steps {
                 script {
                     a = docker.image("maven:3-alpine")
@@ -23,7 +22,6 @@ pipeline {
         }
 
         stage('Build App With Maven') {
-            when { expression { return env.env == 'non-prod'} }
             agent {
                  docker {
                     image "maven:3-alpine"
@@ -43,7 +41,6 @@ pipeline {
         }
 
         stage('Build DockerFile And Push') {
-            when { expression { return env.env == 'non-prod'} }
             steps {
                 script {
                     docker.withRegistry("", "${env.registryCredential}") {
@@ -63,14 +60,14 @@ pipeline {
                         stage ('non-prod') {
                             sh '''
                                 docker run -d -p 8081:8080 --name non-prod-server --env USERHELLO=${variable_non_prod} narawitrt/demo-service:${version_tag}
-                                '''
+                               '''
                         }
                     }
                     if (env.env == 'prod') {
                         stage ('prod') {
                             sh '''
-                            docker run -d -p 8082:8080 --name prod-server --env USERHELLO=${variable_prod} narawitrt/demo-service:${version_tag}
-                            '''
+                                docker run -d -p 8082:8080 --name prod-server --env USERHELLO=${variable_prod} narawitrt/demo-service:${version_tag}
+                               '''
                         }
                     }
                 }
