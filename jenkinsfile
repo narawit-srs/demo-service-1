@@ -61,12 +61,16 @@ pipeline {
                 script {
                     if (env.env == 'non-prod') {
                         stage ('Stage 1') {
-                            sh 'docker run -d -p 8081:8080 --name non-prod-server --env USERHELLO=${env.variable_non_prod} narawitrt/demo-service:${env.version_tag}'
+                            sh '''
+                                docker run -d -p 8081:8080 --name non-prod-server --env USERHELLO=${variable_non_prod} narawitrt/demo-service:${version_tag}
+                                '''
                         }
                     }
                     if (env.env == 'prod') {
                         stage ('Stage 2') {
-                            sh 'docker run -d -p 8082:8080 --name prod-server --env USERHELLO=${env.variable_prod} narawitrt/demo-service:${env.version_tag}'
+                            sh '''
+                            docker run -d -p 8082:8080 --name prod-server --env USERHELLO=${variable_prod} narawitrt/demo-service:${version_tag}
+                            '''
                         }
                     }
                 }
