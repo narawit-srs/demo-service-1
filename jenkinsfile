@@ -1,14 +1,8 @@
 pipeline {
     environment {
         env = "non-prod"
-        registry_proxy = "vayudockerhubdev.ktbcs.co.th:8082"  //for download image from internet
-        registry = "vayudockerhubdev.ktbcs.co.th:8083" //for private registry
-        serviceName = "demo-service" // Replace your serviceName
-        imageName = "$serviceName"  // <prefix>/serviceName // prefix = project name
-        buildversion = "$majorbuild.$minorbuild.${BUILD_NUMBER}"
         registryCredential = "registryCredential"
         version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-        imageToDeploy = getImageToDeploy("$params.imageToDeploy","$imageName","$version_tag")
     }
     agent any
     stages {
@@ -36,11 +30,6 @@ pipeline {
             }
             steps {
                 sh '''
-                    echo "PATH = ${PATH}"
-                    echo "M2_HOME = ${M2_HOME}"
-                    echo "Build Number : ${BUILD_NUMBER}"
-                    
-                    pwd
                     mvn package -DskipTests
                     chown -hR 989 target
                     chgrp -hR 983 target
@@ -54,10 +43,10 @@ pipeline {
         when { expression { return env.env == 'dev'} }
         steps {
             script {
-                docker.withRegistry("https://" + "${env.registry_proxy}", "${env.nexusCredentail}") {
-                    a = docker.build("${env.registry}" + "/" + "${env.imageName}" + ":"+"${env.version_tag}", "-f docker/Dockerfile .")
+                docker.withRegistry("", "${env.nexusCredentail}") {
+                    a = docker.build("narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}", "-f Dockerfile .")
                 }
-                docker.withRegistry("https://" + "${env.registry}", "${env.nexusCredentail}") {
+                docker.withRegistry("", "${env.nexusCredentail}") {
                     a.push()
                 }
             }
