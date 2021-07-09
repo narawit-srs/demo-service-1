@@ -3,6 +3,8 @@ pipeline {
         env = 'non-prod'
         registryCredential = "registryCredential"
         version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+        variable_prod=
+        variable_non_prod=
     }
     agent any
     stages {
@@ -54,8 +56,24 @@ pipeline {
             }
         }
 
+        stage('Deploy Service') {
+            steps {
+                script {
+                    if (env.env == 'non-prod') {
+                        stage ('Stage 1') {
+                            sh 'docker run -d -p 8081:8080 --name non-prod-server --env USERHELLO=${env.variable_non_prod} narawitrt/demo-service:${env.version_tag}'
+                        }
+                    }
+                    if (env.env == 'prod') {
+                        stage ('Stage 2') {
+                            sh 'docker run -d -p 8082:8080 --name prod-server --env USERHELLO=${env.variable_prod} narawitrt/demo-service:${env.version_tag}'
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Cleanup') {
-            when { expression { return env.env == 'non-prod'} }
             steps {
                 script {
                     sh "docker rmi narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}" 
@@ -63,23 +81,7 @@ pipeline {
             }
         }
 
-        stage('Apply Environment variable') {
-            steps {
-                script {
-                    if (env.env == 'non-prod') {
-                        stage ('Stage 1') {
-                            sh 'echo Stage 1'
-                        }
-                    }
-                    if (env.env == 'prod') {
-                        stage ('Stage 2') {
-                            sh 'echo Stage 2'
-                        }
-                    }
-                    echo "hellow"
-                }
-            }
-        }
+        
     
     }
     post {
