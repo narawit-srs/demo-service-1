@@ -59,6 +59,7 @@ pipeline {
                     if (env.env == 'non-prod') {
                         stage ('non-prod') {
                             sh '''
+                                docker rm non-prod-server
                                 docker run -d -p 8081:8080 --name non-prod-server --env USERHELLO=${variable_non_prod} narawitrt/demo-service:${version_tag}
                                '''
                         }
@@ -66,6 +67,7 @@ pipeline {
                     if (env.env == 'prod') {
                         stage ('prod') {
                             sh '''
+                                docker rm prod-server
                                 docker run -d -p 8082:8080 --name prod-server --env USERHELLO=${variable_prod} narawitrt/demo-service:${version_tag}
                                '''
                         }
