@@ -3,9 +3,8 @@ pipeline {
         env = "$params.env"
         registryCredential = "registryCredential"
         version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
-        variable_prod="production-chan!!"
-        variable_non_prod="non-production-kun"
-        serviceName = "demo-service" // Replace your serviceName
+
+        serviceName = "demo-service-employee" // Replace your serviceName
         imageName = "$serviceName"  // <prefix>/serviceName // prefix = project name
         namespace = "$serviceName"+ "-" + "$env"
     }
@@ -56,19 +55,7 @@ pipeline {
             }
         }
 
-        stage('Deploy Dokcer Test Service') {
-            steps {
-                script {
-                    
-                            sh '''
-                                docker stop non-prod-server
-                                docker rm non-prod-server
-                                docker run -d -p 8081:8090 --name non-prod-server --env USERHELLO=${variable_non_prod} narawitrt/demo-service:${version_tag}
-                               '''
-                    
-                }
-            }
-        }
+        
 
         stage('Apply Environment variable to deployment file') {
             steps {
