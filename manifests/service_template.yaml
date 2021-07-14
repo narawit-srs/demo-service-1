@@ -13,4 +13,4 @@ spec:
   selector:
     app: '${serviceName}'
   sessionAffinity: None
-  type: ClusterIP
+  type: LoadBalancer
