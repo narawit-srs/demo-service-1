@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: '${serviceName}'
-        image: '${imageToDeploy}'
+        image: 'narawitrt/${serviceName}:${version_tag}'
         envFrom:
         - secretRef:
             name: '${serviceName}-${env}-secret'
