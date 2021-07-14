@@ -5,6 +5,10 @@ pipeline {
         version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
         variable_prod="production-chan!!"
         variable_non_prod="non-production-kun"
+        serviceName = "demo-service" // Replace your serviceName
+        imageName = "$serviceName"  // <prefix>/serviceName // prefix = project name
+        namespace = "$serviceName"+ "-" + "$env"
+        version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
     }
     agent any
     stages {
@@ -44,7 +48,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("", "${env.registryCredential}") {
-                        a = docker.build("narawitrt" + "/" + "demo-service" + ":"+"${env.version_tag}", "-f Dockerfile .")
+                        a = docker.build("narawitrt" + "/" + "${serviceName}" + ":"+"${env.version_tag}", "-f Dockerfile .")
                     }
                     docker.withRegistry("", "${env.registryCredential}") {
                         a.push()
@@ -53,7 +57,7 @@ pipeline {
             }
         }
 
-        stage('Deploy Service') {
+        stage('Deploy Dokcer Test Service') {
             steps {
                 script {
                     
@@ -67,6 +71,16 @@ pipeline {
             }
         }
 
+        stage('Apply Environment variable to deployment file') {
+            steps {
+                script {
+                    sh 'envsubst < manifests/deployment_template.yaml > manifests/deployment.yaml'
+                    sh 'envsubst < manifests/service_template.yaml > manifests/service.yaml'
+                    sh 'envsubst < manifests/ingress_template.yaml > manifests/ingress.yaml'
+                }
+            }
+        }
+
         stage('create secret and deploy app to kube cluster') {
             agent {
                   docker {
@@ -76,23 +90,21 @@ pipeline {
             }
             steps {
                 withKubeConfig([credentialsId: 'kube_credential', serverUrl: 'https://172.16.16.100:6443']) {
-                    script {
-                        // sh """
-                        // echo ${env.imageToDeploy}
-                        // ls -al manifests
-                        // cat manifests/deployment.yaml
-                        // cat manifests/service.yaml
-                        // cat manifests/ingress.yaml
-                        // mv src/main/resources/keys/public_key_${env.env}.pem src/main/resources/keys/public_key.pem
-                        // kubectl create secret tls $serviceName-cert --key cert/$project-${env.env}.krungthai.key --cert cert/${project}-${env.env}.krungthai.cer -n $namespace -o yaml --dry-run | kubectl replace -f -
-                        // kubectl create secret tls $serviceName-svc-cert --key cert/${project}svc-${env.env}.krungthai.key --cert cert/${project}svc-${env.env}.krungthai.pem -n $namespace -o yaml --dry-run | kubectl replace -f -
-                        // kubectl create secret generic $serviceName-${env.env}-secret --from-env-file=.env_${env.env} -n $namespace -o yaml --dry-run | kubectl replace -f -
-                        // kubectl create secret generic $serviceName-${env.env}-secret-file --from-file=src/main/resources/cert.jks --from-file=src/main/resources/cbs.jks --from-file=src/main/resources/keys/public_key.pem -n $namespace -o yaml --dry-run | kubectl replace -f -
-                        // kubectl apply -n $namespace -f manifests/deployment.yaml
-                        // kubectl apply -n $namespace -f manifests/service.yaml
-                        // kubectl apply -n $namespace -f manifests/ingress.yaml
-                        // """
-                        sh "kubectl get no"
+                    withCredentials([file(credentialsId: 'serviceEnv', variable: 'serviceEnv')]) {
+                        script {
+                            sh """
+                            echo ${env.imageToDeploy}
+                            ls -al manifests
+                            cat manifests/deployment.yaml
+                            cat manifests/service.yaml
+                            cat manifests/ingress.yaml
+                            kubectl create secret generic $serviceName-${env.env}-secret --from-env-file=$serviceEnv -n $namespace -o yaml --dry-run | kubectl replace -f -
+                            kubectl apply -n $namespace -f manifests/deployment.yaml
+                            kubectl apply -n $namespace -f manifests/service.yaml
+                            kubectl apply -n $namespace -f manifests/ingress.yaml
+                            """
+                            sh "kubectl get no"
+                        }
                     }
                 }
             }
