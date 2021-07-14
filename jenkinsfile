@@ -56,22 +56,13 @@ pipeline {
         stage('Deploy Service') {
             steps {
                 script {
-                    if (env.env == 'non-prod') {
-                        stage ('non-prod') {
+                    
                             sh '''
+                                docker stop non-prod-server
                                 docker rm non-prod-server
-                                docker run -d -p 8081:8080 --name non-prod-server --env USERHELLO=${variable_non_prod} narawitrt/demo-service:${version_tag}
+                                docker run -d -p 8081:8090 --name non-prod-server --env USERHELLO=${variable_non_prod} narawitrt/demo-service:${version_tag}
                                '''
-                        }
-                    }
-                    if (env.env == 'prod') {
-                        stage ('prod') {
-                            sh '''
-                                docker rm prod-server
-                                docker run -d -p 8082:8080 --name prod-server --env USERHELLO=${variable_prod} narawitrt/demo-service:${version_tag}
-                               '''
-                        }
-                    }
+                    
                 }
             }
         }
