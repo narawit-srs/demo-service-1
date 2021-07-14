@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        env = 'dev'
+        env = "$params.env"
         registryCredential = "registryCredential"
         version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
         variable_prod="production-chan!!"
