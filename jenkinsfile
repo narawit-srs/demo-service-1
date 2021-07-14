@@ -8,7 +8,6 @@ pipeline {
         serviceName = "demo-service" // Replace your serviceName
         imageName = "$serviceName"  // <prefix>/serviceName // prefix = project name
         namespace = "$serviceName"+ "-" + "$env"
-        version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
     }
     agent any
     stages {
