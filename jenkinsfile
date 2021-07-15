@@ -34,7 +34,6 @@ pipeline {
             }
             steps {
                 sh '''
-                    mvn test
                     mvn package -DskipTests
                     chown -hR 989 target
                     chgrp -hR 983 target
