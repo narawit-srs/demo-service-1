@@ -34,13 +34,14 @@ pipeline {
             }
             steps {
                 sh '''
+                    mvn spring-boot:run
+                    mvn test
                     mvn package -DskipTests
                     chown -hR 989 target
                     chgrp -hR 983 target
                     pwd
                     ls -al
-                    mvn spring-boot:run
-                    mvn test
+                    
                 ''' 
             }
         }
