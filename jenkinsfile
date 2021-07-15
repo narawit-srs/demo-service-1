@@ -34,6 +34,7 @@ pipeline {
             }
             steps {
                 sh '''
+                    export USERHELLO="ENVFORTESTING"
                     mvn spring-boot:run
                     mvn test
                     mvn package -DskipTests
