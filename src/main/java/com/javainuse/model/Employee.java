@@ -5,7 +5,6 @@ public class Employee {
 	private String name;
 	private String designation;
 	private double salary;
-	private String motto;
 
 	public Employee() {
 	}
@@ -40,14 +39,6 @@ public class Employee {
 
 	public void setEmpId(String empId) {
 		this.empId = empId;
-	}
-	
-	public String getMotto() {
-		return motto;
-	}
-
-	public void setMotto(String motto) {
-		this.motto = motto;
 	}
 
 }

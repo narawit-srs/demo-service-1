@@ -13,9 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.javainuse.TestDemoServiceApplication;
-
-public class TestWebApp extends TestDemoServiceApplication {
+public class TestWebApp extends SpringBootDemoTests {
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;

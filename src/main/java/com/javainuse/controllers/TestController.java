@@ -10,8 +10,8 @@ import com.javainuse.model.Employee;
 @RestController
 public class TestController {
 
-	@Value("${USERHELLO}")
-		String user_hello;
+//	@Value("${USERHELLO}")
+//		String user_hello;
 
 	@RequestMapping(value = "/employee", method = RequestMethod.GET)
 	public Employee firstPage() {
