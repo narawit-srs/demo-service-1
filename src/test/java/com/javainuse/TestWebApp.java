@@ -1,4 +1,4 @@
-package demoservice;
+package com.javainuse;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -13,9 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import demoservice.DemoServiceApplicationTests;
+import com.javainuse.TestDemoServiceApplication;
 
-public class TestWebApp extends DemoServiceApplicationTests {
+public class TestWebApp extends TestDemoServiceApplication {
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;

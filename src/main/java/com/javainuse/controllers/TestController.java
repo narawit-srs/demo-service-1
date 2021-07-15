@@ -21,6 +21,7 @@ public class TestController {
 		emp.setDesignation("manager");
 		emp.setEmpId("1");
 		emp.setSalary(3000);
+		emp.setMotto(user_hello);
 		
 		return emp;
 	}
