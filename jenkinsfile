@@ -57,6 +57,14 @@ pipeline {
             }
         }
 
+        stage('scan image'){
+            steps{
+                script{
+                    sh "docker-compose exec -u root clairctl clairctl report -l narawitrt/${serviceName}:${env.version_tag}"
+                    sh "docker scan --json narawitrt/${serviceName}:${env.version_tag}"
+                }
+            }
+        }
         
 
         stage('Apply Environment variable to deployment file') {
