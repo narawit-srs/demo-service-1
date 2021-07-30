@@ -117,7 +117,7 @@ pipeline {
                     echo 'Running K6 performance tests...'
                     // sh 'k6 login cloud --token ${K6_API_TOKEN}'
                     // sh 'k6 cloud performance-test.js'
-                    sh "k6 run performance-test.js --out cloud"
+                    sh "k6 run performance-test.js --out cloud --out csv"
                     echo 'Completed Running K6 performance tests!'
                 }
             }
@@ -135,9 +135,9 @@ pipeline {
         stage("send mail"){
             steps{
                 script{
-                    archiveArtifacts artifacts: 'Dockerfile'
-                    mail to:"narawit@sirisoft.co.th",subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
-                    emailext attachmentsPattern: 'Dockerfile', body: 'xxx', subject: 'Success', to: 'narawit@sirisoft.co.th'
+                    archiveArtifacts artifacts: 'file.csv'
+                    // mail to:"narawit@sirisoft.co.th",subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
+                    emailext attachmentsPattern: 'file.csv', body: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}", subject: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}", to: 'narawit@sirisoft.co.th'
                 }
             }
         }
