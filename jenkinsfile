@@ -113,6 +113,7 @@ pipeline {
         stage("load test"){
             steps{
                 script{
+                    sh '/home/jenkins/apache-jmeter-5.2.1/bin/jmeter -Jjmeter.save.saveservice.output_format=xml -n -t /home/jenkins/apache-jmeter-5.2.1/extras/Test.jmx -l Test.jtl'
                     echo 'Running K6 performance tests...'
                     sh 'k6 login cloud --token ${K6_API_TOKEN}'
                     sh 'k6 cloud performance-test.js'
