@@ -58,11 +58,10 @@ pipeline {
             }
         }
 
-        stage('scan image'){
+        stage('archieve file'){
             steps{
                 script{
-                    sh "docker-compose exec -u root clairctl clairctl report -l narawitrt/${serviceName}:${env.version_tag}"
-                    sh "docker scan --json narawitrt/${serviceName}:${env.version_tag}"
+                    archiveArtifacts artifacts: 'Dockerfile'
                 }
             }
         }
