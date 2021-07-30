@@ -8,23 +8,13 @@ pipeline {
         imageName = "$serviceName"  // <prefix>/serviceName // prefix = project name
         project = "demo-service"  
         namespace = "$project"+ "-" + "$env"
+
+        K6_API_TOKEN=credentials("K6_API_TOKEN")
+        K6_CLOUD_PROJECT_ID=credentials("K6_CLOUD_PROJECT_ID")
     }
     agent any
     stages {
-        stage("send mail"){
-            steps{
-                script{
-            
-                    archiveArtifacts artifacts: 'Dockerfile'
-
-                    mail to:"narawit@sirisoft.co.th",
-                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
-                body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
-
-                emailext attachmentsPattern: 'Dockerfile', body: 'xxx', subject: 'Success', to: 'narawit@sirisoft.co.th'
-                }
-            }
-        }
+        
 
         stage('Pull image') {
             steps {
@@ -120,6 +110,16 @@ pipeline {
                 }
             }
         }
+        stage("load test"){
+            steps{
+                script{
+                    echo 'Running K6 performance tests...'
+                    sh 'k6 login cloud --token ${K6_API_TOKEN}'
+                    sh 'k6 cloud performance-test.js'
+                    echo 'Completed Running K6 performance tests!'
+                }
+            }
+        }
 
         stage('Cleanup') {
             steps {
@@ -130,14 +130,19 @@ pipeline {
             }
         }
 
-        
-    
+        stage("send mail"){
+            steps{
+                script{
+                    archiveArtifacts artifacts: 'Dockerfile'
+                    mail to:"narawit@sirisoft.co.th",subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
+                    emailext attachmentsPattern: 'Dockerfile', body: 'xxx', subject: 'Success', to: 'narawit@sirisoft.co.th'
+                }
+            }
+        }
     }
     post {
         always {
-            
-            
-            echo 'I will always say Hello again!'
+            echo 'post stage'
             
         }
     }
