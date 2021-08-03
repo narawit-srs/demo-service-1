@@ -12,6 +12,9 @@ export let options = {
 export default function () {
   http.get('http://172.16.16.151:8080/employee');
   sleep(3);
+}
+
+export function handleSummary(data) {
   return {
     "summary.html": htmlReport(data),
   };
