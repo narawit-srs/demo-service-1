@@ -117,7 +117,7 @@ pipeline {
                     echo 'Running K6 performance tests...'
                     // sh 'k6 login cloud --token ${K6_API_TOKEN}'
                     // sh 'k6 cloud performance-test.js'
-                    sh "k6 run performance-test.js --out cloud --out csv --out statsd >> text.txt"
+                    sh "k6 run performance-test.js --out cloud --out csv --out statsd > text.txt"
                     echo 'Completed Running K6 performance tests!'
                 }
             }
