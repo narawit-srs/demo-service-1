@@ -136,7 +136,7 @@ pipeline {
             steps{
                 script{
                     archiveArtifacts artifacts: 'file.csv'
-                    archiveArtifacts artifacts: 'text.text'
+                    archiveArtifacts artifacts: 'text.txt'
                     // mail to:"narawit@sirisoft.co.th",subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}"
                     emailext attachmentsPattern: 'file.csv', body: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}", subject: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}", to: 'narawit@sirisoft.co.th'
                 }
