@@ -4,19 +4,17 @@ pipeline {
         registryCredential = "registryCredential"
         version_tag = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
 
-        serviceName = "demo-service-employee" // Replace your serviceName
+        serviceName = "demo-service-app" // Replace your serviceName
         imageName = "$serviceName"  // <prefix>/serviceName // prefix = project name
         project = "demo-service"  
         namespace = "$project"+ "-" + "$env"
 
-        K6_API_TOKEN=credentials("K6_API_TOKEN")
-        K6_CLOUD_PROJECT_ID=credentials("K6_CLOUD_PROJECT_ID")
     }
     agent any
     stages {
         
 
-        stage('Pull image') {
+        stage('Pull image') { //pull base image to build image
             steps {
                 script {
                     sh "echo $PATH"
@@ -30,7 +28,7 @@ pipeline {
             }
         }
 
-        stage('Build App With Maven and Run Unit Test') {
+        stage('Build App and Run Test') {
             agent {
                  docker {
                     image "maven:3-alpine"
@@ -55,22 +53,11 @@ pipeline {
                 script {
                     docker.withRegistry("", "${env.registryCredential}") {
                         a = docker.build("narawitrt" + "/" + "${serviceName}" + ":"+"${env.version_tag}", "-f Dockerfile .")
-                    }
-                    docker.withRegistry("", "${env.registryCredential}") {
                         a.push()
                     }
                 }
             }
         }
-
-        stage('archieve file'){
-            steps{
-                script{
-                    archiveArtifacts artifacts: 'Dockerfile'
-                }
-            }
-        }
-        
 
         stage('Apply Environment variable to deployment file') {
             steps {
@@ -104,7 +91,6 @@ pipeline {
                             kubectl apply -n $namespace -f manifests/service.yaml
                             kubectl apply -n $namespace -f manifests/ingress.yaml
                             """
-                            sh "kubectl get no"
                         }
                     }
                 }

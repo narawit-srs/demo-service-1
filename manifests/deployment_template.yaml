@@ -5,7 +5,7 @@ metadata:
   labels:
     app: '${serviceName}'
 spec:
-  replicas: 2
+  replicas: '${podReplica}'
   selector:
     matchLabels:
       app: '${serviceName}'
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: '${serviceName}'
-        image: 'narawitrt/${serviceName}:${version_tag}'
+        image: '${imageRepo}/${serviceName}:${versionTag}'
         envFrom:
         - secretRef:
             name: '${serviceName}-${env}-secret'
