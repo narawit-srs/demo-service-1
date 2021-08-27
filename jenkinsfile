@@ -14,18 +14,18 @@ pipeline {
     stages {
         
 
-        stage('Pull image') { //pull base image to build image
-            steps {
-                script {
-                    sh "echo $PATH"
-                    a = docker.image("maven:3-alpine")
-                    b = docker.image("adoptopenjdk/openjdk8-openj9")
-                    docker.withRegistry('', "${env.registryCredential}") {
-                        a.pull()
-                        b.pull()
-                    }
-                }
-            }
+        // stage('Pull image') { //pull base image to build image
+        //     steps {
+        //         script {
+        //             sh "echo $PATH"
+        //             a = docker.image("maven:3-alpine")
+        //             b = docker.image("adoptopenjdk/openjdk8-openj9")
+        //             docker.withRegistry('', "${env.registryCredential}") {
+        //                 a.pull()
+        //                 b.pull()
+        //             }
+        //         }
+        //     }
         }
 
         stage('Build App and Run Test') {
