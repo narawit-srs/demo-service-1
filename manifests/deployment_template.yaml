@@ -5,7 +5,7 @@ metadata:
   labels:
     app: '${serviceName}'
 spec:
-  replicas: '${podReplica}'
+  replicas: ${podReplica}
   selector:
     matchLabels:
       app: '${serviceName}'
